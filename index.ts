@@ -1,12 +1,11 @@
 import { join } from "node:path";
 import { ModelOperations } from "@vscode/vscode-languagedetection";
-import piston from "piston-client";
 
 const acePath = join(__dirname, "ace-builds", "src-min");
 const modulePath = join(__dirname, "node_modules");
 const sauce = join(__dirname, "sauce");
 const errorPage = await Bun.file(join(sauce, "404.html")).text();
-const server = "http://2.dreamnity.in:2000/api/v2/connect";
+const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
 
 console.log("\u001bcIt works", Date.now() % 10000);
@@ -39,6 +38,9 @@ Bun.serve<ExecutionData>({
         status: 400
       });
     }
+    if (url.pathname.startsWith("/api/list")) {
+      return fetch(server+"/runtimes");
+    }
     let path = join(sauce, url.pathname);
     if (path.endsWith("/") && await Bun.file(path + "index.html").exists())
       return new Response(Bun.file(path + "index.html"));
@@ -58,7 +60,7 @@ Bun.serve<ExecutionData>({
       if (ws.data.code === undefined) {
         ws.data.code = message;
 
-        const back = ws.data.conn = new WebSocket(server);
+        const back = ws.data.conn = new WebSocket(server +"/connect");
         back.onopen = () => {
           ws.send("!!starting");
           back.send(JSON.stringify({
@@ -115,7 +117,7 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: 50004
+  port: 8080
 });
 
 function makeErrorPage(message: string, code: number = 500) {

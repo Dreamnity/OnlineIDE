@@ -36,20 +36,25 @@ body, html {
 /* CSS */
 .overlay-panel {
   position: absolute;
-  top: 5%;
-  height: 90%;
-  width: auto;
-  right: -10%;
+  top: 2%;
+  height: 96%;
+  width: 30%;
+  right: -29%;
+  padding: 0;
   /* hide the panel to the right */
-  background-color: #fff;
-  /* add a background color to the panel */
-  padding: 20px;
+  background-color: #0b0b0b;
   /* add some padding to the panel */
   transition: right 0.5s;
   /* add a transition effect to the panel */
+  border: #0d0d0d 2px solid;
+  border-right: none;
 }
 
 .overlay-panel:hover {
   right: 0;
   /* show the panel when hovered */
+}
+
+#terminal {
+  height: 96%;
 }
