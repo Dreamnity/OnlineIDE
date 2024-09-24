@@ -1,0 +1,19 @@
+{
+  "name": "onlineide",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "linguist-js": "^2.8.0",
+    "piston-client": "^1.0.2"
+  },
+  "patchedDependencies": {
+    "piston-client@1.0.2": "patches/piston-client@1.0.2.patch"
+  }
+}

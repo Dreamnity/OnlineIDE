@@ -1,0 +1,34 @@
+#editor {
+  display: block;
+  /* or display: inline-block; */
+  height: 100%;
+  flex: 2;
+  margin: 0;
+}
+
+.layout {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.sidebar {
+  flex: 0 0 auto;
+  /* or flex: 0 0 200px; if you want a fixed width */
+}
+
+#editor-wrapper {
+  height: 100%;
+  flex: 2;
+  margin: 0;
+}
+
+.layout>* {
+  margin: 0;
+}
+
+body, html {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+  <title>Online Code Editor</title>
+  <link href="/module/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/styles.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="layout">
+    <div class="sidebar">helo world</div>
+    <div id="editor-wrapper">
+      <pre id="editor"></pre>
+    </div>
+  </div>
+  <script src="/ace/ace.js"></script>
+  <script src="/ace/ext-language_tools.js"></script>
+  <script>
+    window.editor = ace.edit("editor");
+    ace.require("ace/ext/language_tools");
+    editor.setOptions({
+      mode: "ace/mode/javascript",
+      theme: "ace/theme/vibrant_ink",
+      autoScrollEditorIntoView: true,
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true
+    });
+    //editor.setTheme("ace/theme/vibrant_ink");
+    const modelist = ace.require("ace/ext/modelist");
+  </script>
+  <script src="/module/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
