@@ -9,8 +9,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@vscode/vscode-languagedetection": "^1.0.22",
+    "@xterm/xterm": "^5.5.0",
     "bootstrap": "^5.3.3",
-    "linguist-js": "^2.8.0",
     "piston-client": "^1.0.2"
   },
   "patchedDependencies": {
