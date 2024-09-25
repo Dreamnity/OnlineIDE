@@ -21,5 +21,5 @@ services:
     working_dir: /home/container
     command: bun .
     ports:
-      - "8080:50004"
+      - "50004:8080"
 version: '3'
