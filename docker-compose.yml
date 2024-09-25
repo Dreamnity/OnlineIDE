@@ -5,8 +5,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-    expose:
-    - 8080
     healthcheck:
       interval: 1m30s
       retries: 3
@@ -17,11 +15,11 @@ services:
       - http://localhost:8080
       timeout: 10s
     image: oven/bun
-    ports:
-    - '50004'
     user: '1000'
     volumes:
     - /home/ubuntu/OnlineIDE/:/home/container/
     working_dir: /home/container
     command: bun .
+    ports:
+      - "8080:50004"
 version: '3'
