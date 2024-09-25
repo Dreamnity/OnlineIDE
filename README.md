@@ -1,4 +1,4 @@
-# OnlineIDE
+# OnlineIDE ![status](http://status.dreamnity.in/api/badge/44/status?style=flat-square)
 
 Minimal lightweight IDE in the cloud, featuring compiler that can run (almost) any languages and auto language detection(still inaccurate).
 
