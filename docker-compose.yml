@@ -23,4 +23,5 @@ services:
     volumes:
     - /home/ubuntu/OnlineIDE/:/home/container/
     working_dir: /home/container
+    command: .
 version: '3'
