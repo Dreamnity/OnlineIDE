@@ -7,6 +7,7 @@ const sauce = join(__dirname, "sauce");
 const errorPage = await Bun.file(join(sauce, "404.html")).text();
 const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
+const runtimes = await fetch(server+"/runtimes").then(e=>e.json());
 
 console.log("\u001bcIt works");
 Bun.serve<ExecutionData>({
@@ -23,7 +24,13 @@ Bun.serve<ExecutionData>({
       if (!result?.[0]) return new Response("null", {
         status: 404
       });
-      return new Response(result[0].languageId);
+      for(const lang of result) {
+        if(runtimes.find((e: any)=>e.language===lang.languageId||e.aliases.includes(lang.languageId)))
+          return new Response(lang.languageId);
+      }
+      return new Response("null", {
+        status: 404
+      })
     }
     if (url.pathname.startsWith("/api/execute")) {
       /*const result = await client.execute(, await req.text(), {
@@ -120,7 +127,7 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: 8080
+  port: 8084
 });
 
 function makeErrorPage(message: string, code: number = 500) {
