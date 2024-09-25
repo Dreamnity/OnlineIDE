@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { ModelOperations } from "@vscode/vscode-languagedetection";
+import config from "./config.json";
 
 const acePath = join(__dirname, "ace-builds", "src-min");
 const modulePath = join(__dirname, "node_modules");
@@ -127,7 +128,7 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: 8084
+  port: config.port
 });
 
 function makeErrorPage(message: string, code: number = 500) {

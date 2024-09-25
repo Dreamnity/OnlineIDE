@@ -1,0 +1,12 @@
+{
+    "port": 8084,
+    "langMap": {
+        "js": "javascript",
+        "py": "python",
+        "g++": "c_cpp|gcc",
+        "c": "c_cpp|gcc",
+        "cpp": "c_cpp|gcc",
+        "bash": "sh",
+        "shell": "sh"
+    }
+}
