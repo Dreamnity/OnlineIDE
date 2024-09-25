@@ -41,6 +41,10 @@ Bun.serve<ExecutionData>({
       return fetch(server+"/runtimes");
     }
     let path = join(sauce, url.pathname);
+    if (path.endsWith("/") && await Bun.file(join(sauce, "min", url.pathname, "index.html")).exists())
+      return new Response(join(sauce, "min", url.pathname, "index.html"));
+    if (await Bun.file(join(sauce, "min", url.pathname)).exists())
+      return new Response(join(sauce, "min", url.pathname));
     if (path.endsWith("/") && await Bun.file(path + "index.html").exists())
       return new Response(Bun.file(path + "index.html"));
     const file = Bun.file(path);

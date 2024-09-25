@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "terser": "^5.33.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -16,5 +17,9 @@
   },
   "patchedDependencies": {
     "piston-client@1.0.2": "patches/piston-client@1.0.2.patch"
+  },
+  "scripts": {
+    "dev": "bun --hot .",
+    "min": "bun minify.ts"
   }
 }
