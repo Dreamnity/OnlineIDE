@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
-  <title>Online Code Editor</title>
+  <title>OnlineIDE</title>
   <link href="/bootstrap.min.css" rel="stylesheet">
   <link href="/styles.css" rel="stylesheet">
   <link rel="stylesheet" href="/module/@xterm/xterm/css/xterm.css" />
@@ -14,20 +14,21 @@
 
 <body>
   <div class="layout">
-    <div class="sidebar">icon goes here</div>
+    <div class="sidebar"><!-- For future use --></div>
     <div id="editor-wrapper">
       <pre id="editor"></pre>
     </div>
     <div class="overlay-panel">
       <div class="btn-group btn-group-sm float-end" role="group" aria-label="Actions" style="z-index: 1">
-        <button type="button" class="btn btn-primary">Run</button>
-        <button type="button" class="btn btn-warning" disabled>Stop</button>
+        <button type="button" class="btn btn-primary" id="run">Run</button>
+        <button type="button" class="btn btn-warning" disabled id="stop">Stop</button>
+        <button type="button" class="btn btn-secondary" disabled id="lang">Auto Detect</button>
         <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
           aria-expanded="false">
-          <span class="visually-hidden">Toggle Dropdown</span>
+          <span class="visually-hidden">Select Language</span>
         </button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" id="lang-auto">Automatic detect</a></li>
+          <li><a class="dropdown-item" id="lang-auto" onclick="set('auto')">Automatic detect</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
@@ -35,7 +36,6 @@
 
       </div>
       <div id="terminal"></div>
-      <!-- your content here -->
     </div>
   </div>
   <script src="/ace/ace.js"></script>
@@ -44,6 +44,7 @@
     function main() {
       var auto = true;
       var autoLang = '';
+      var lang = 'js';
       const editor = ace.edit("editor");
       ace.require("ace/ext/language_tools");
       editor.setOptions({
@@ -78,28 +79,94 @@
           if (res === 'null' || r.status === 404) return;
           autoLang = res;
           document.getElementById("lang-auto").innerText = "Auto (" + res + ")";
-          if (auto) setLang(res);
+          if (auto) {
+            document.getElementById("lang").innerText = "Auto (" + res + ")";
+            editor.session.setMode("ace/mode/" + name);
+            lang = res;
+          }
         })
         localStorage.setItem("code", code);
       }
       function setLang(name) {
+        auto = false;
+        if (name == 'auto') {
+          auto = true;
+          name = autoLang;
+        }
         editor.session.setMode("ace/mode/" + name);
+        lang = name;
+        document.getElementById("lang").innerHTML = this?.innerHTML || name;
       }
+      window.set = setLang;
       fetch("/api/list").then(r => r.json()).then(l => {
         const dropdown = document.querySelector("ul.dropdown-menu");
         const regex = /[^a-zA-Z0-9\-_]/g
-        for (const { language, aliases } of l) {
+        for (const { language, aliases, version } of l) {
           const id = regex.test(language) ? aliases.find(e => !regex.test(language)) || language : language
           const li = document.createElement("li");
           const a = document.createElement("a");
           a.className = 'dropdown-item';
           a.id = 'lang-' + id;
-          a.innerText = language;
+          a.innerHTML = `${language} <sup>${version}</sup>`;
           a.onclick = () => setLang(id);
           li.appendChild(a);
           dropdown.appendChild(li);
         }
+      });
+      /**
+       * @type {WebSocket}
+       */
+      var ws;
+      term.onKey(({ key }) => {
+        if (ws && ws?.readyState === 1) ws.send(key);
       })
+      const stopBtn = document.getElementById("stop");
+      stopBtn.onclick = () => {
+        if (ws) ws.close();
+        stopBtn.disabled = true;
+      };
+      const runBtn = document.getElementById("run");
+      runBtn.onclick = () => {
+        if (ws && ws?.readyState <= 1) return;
+        ws = new WebSocket("/api/execute?lang=" + lang);
+        ws.onopen = () => {
+          runBtn.classList.add("btn-warning");
+          term.write("\u001bc");
+          ws.send(editor.getValue());
+          stopBtn.disabled = false;
+        }
+        ws.onmessage = msg => {
+          const dat = msg.data.toString();
+          if (dat === '!!ready') {
+            runBtn.innerText = "30%";
+            return;
+          }
+          if (dat === '!!starting') {
+            runBtn.innerText = "80%";
+            runBtn.classList.remove("btn-warning");
+            runBtn.classList.add("btn-info");
+            return;
+          }
+          if (dat == '!!running') {
+            runBtn.innerText = "Running";
+            runBtn.classList.remove("btn-info");
+            runBtn.classList.add("btn-success");
+            return;
+          }
+          if (dat.startsWith("!!exit ")) {
+            if (dat.endsWith(" 0")) return;
+            console.error("Code failed with exit code " + dat.substring(7));
+            return;
+          }
+          term.write(dat);
+        }
+        ws.onerror = () => term.write("\x1b[31m[client websocket error]\x1b[0m");
+        ws.onclose = () => {
+          runBtn.innerText = "Run";
+          runBtn.classList.remove("btn-success", "btn-warning", "btn-info");
+          stopBtn.disabled = true;
+        }
+      }
       if (localStorage.getItem("code")) editor.setValue(localStorage.getItem("code"));
     }
     main();

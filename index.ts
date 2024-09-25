@@ -8,7 +8,7 @@ const errorPage = await Bun.file(join(sauce, "404.html")).text();
 const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
 
-console.log("\u001bcIt works", Date.now() % 10000);
+console.log("\u001bcIt works");
 Bun.serve<ExecutionData>({
   async fetch(req) {
     const url = new URL(req.url);
@@ -20,7 +20,6 @@ Bun.serve<ExecutionData>({
       return new Response(Bun.file(join(acePath, url.pathname.split("/").slice(2).join("/"))));
     if (url.pathname.startsWith("/api/classify")) {
       const result = await classifier.runModel(await req.text());
-      console.log(result[0])
       if (!result?.[0]) return new Response("null", {
         status: 404
       });
