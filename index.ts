@@ -9,6 +9,7 @@ const errorPage = await Bun.file(join(sauce, "404.html")).text();
 const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
 const runtimes = await fetch(server+"/runtimes").then(e=>e.json());
+const dev = process.argv.includes("--dev");
 
 console.log("\u001bcIt works");
 Bun.serve<ExecutionData>({
@@ -49,10 +50,12 @@ Bun.serve<ExecutionData>({
       return fetch(server+"/runtimes");
     }
     let path = join(sauce, url.pathname);
-    if (path.endsWith("/") && await Bun.file(join(sauce, "min", url.pathname, "index.html")).exists())
-      return new Response(Bun.file(join(sauce, "min", url.pathname, "index.html")));
-    if (await Bun.file(join(sauce, "min", url.pathname)).exists())
-      return new Response(Bun.file(join(sauce, "min", url.pathname)));
+    if (!dev) {
+      if (path.endsWith("/") && await Bun.file(join(sauce, "min", url.pathname, "index.html")).exists())
+        return new Response(Bun.file(join(sauce, "min", url.pathname, "index.html")));
+      if (await Bun.file(join(sauce, "min", url.pathname)).exists())
+        return new Response(Bun.file(join(sauce, "min", url.pathname)));
+    }
     if (path.endsWith("/") && await Bun.file(path + "index.html").exists())
       return new Response(Bun.file(path + "index.html"));
     const file = Bun.file(path);
@@ -128,7 +131,7 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: config.port
+  port: dev?config.devPort:config.port
 });
 
 function makeErrorPage(message: string, code: number = 500) {

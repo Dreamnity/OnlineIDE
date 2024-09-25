@@ -50,6 +50,16 @@
       var auto = true;
       var autoLang = '';
       var lang = 'js';
+      const langMap = {
+        "js": "javascript",
+        "py": "python",
+        "g++": "c_cpp",
+        "c": "c_cpp",
+        "cpp": "c_cpp",
+        "gcc": "c_cpp",
+        "bash": "sh",
+        "shell": "sh"
+      };
       const editor = ace.edit("editor");
       ace.require("ace/ext/language_tools");
       editor.setOptions({
@@ -86,7 +96,7 @@
           document.getElementById("lang-auto").innerText = "Auto (" + res + ")";
           if (auto) {
             document.getElementById("lang").innerText = "Auto (" + res + ")";
-            editor.session.setMode("ace/mode/" + name);
+            editor.session.setMode("ace/mode/" + (langMap[name] || name));
             lang = res;
           }
         })
@@ -96,9 +106,9 @@
         auto = false;
         if (name == 'auto') {
           auto = true;
-          name = autoLang;
+          name = autoLang||lang;
         }
-        editor.session.setMode("ace/mode/" + name);
+        editor.session.setMode("ace/mode/" + (langMap[name]||name));
         lang = name;
         document.getElementById("lang").innerHTML = this?.innerHTML || name;
       }
@@ -134,8 +144,10 @@
       runBtn.onclick = () => {
         if (ws && ws?.readyState <= 1) return;
         ws = new WebSocket("/api/execute?lang=" + lang);
+        runBtn.innerText = "...";
         ws.onopen = () => {
           runBtn.classList.add("btn-warning");
+          runBtn.innerText = "30%";
           term.write("\u001bc");
           ws.send(editor.getValue());
           stopBtn.disabled = false;
@@ -143,18 +155,16 @@
         ws.onmessage = msg => {
           const dat = msg.data.toString();
           if (dat === '!!ready') {
-            runBtn.innerText = "30%";
+            runBtn.innerText = "50%";
             return;
           }
           if (dat === '!!starting') {
             runBtn.innerText = "80%";
-            runBtn.classList.remove("btn-warning");
-            runBtn.classList.add("btn-info");
             return;
           }
           if (dat == '!!running') {
             runBtn.innerText = "Running";
-            runBtn.classList.remove("btn-info");
+            runBtn.classList.remove("btn-warning");
             runBtn.classList.add("btn-success");
             return;
           }
@@ -170,6 +180,7 @@
           runBtn.innerText = "Run";
           runBtn.classList.remove("btn-success", "btn-warning", "btn-info");
           stopBtn.disabled = true;
+          ws = null;
         }
       }
       if (localStorage.getItem("code")) editor.setValue(localStorage.getItem("code"));

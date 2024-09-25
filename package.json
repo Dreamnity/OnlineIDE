@@ -19,7 +19,7 @@
     "piston-client@1.0.2": "patches/piston-client@1.0.2.patch"
   },
   "scripts": {
-    "dev": "bun --hot .",
+    "dev": "bun --hot . --dev",
     "min": "bun minify.ts"
   }
 }
