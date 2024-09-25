@@ -24,5 +24,3 @@ services:
     - /home/ubuntu/OnlineIDE/:/home/container/
     working_dir: /home/container
 version: '3'
-volumes:
-  /home/ubuntu/OnlineIDE/: null
