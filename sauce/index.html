@@ -107,7 +107,7 @@
         const dropdown = document.querySelector("ul.dropdown-menu");
         const regex = /[^a-zA-Z0-9\-_]/g
         for (const { language, aliases, version } of l) {
-          const id = regex.test(language) ? aliases.find(e => !regex.test(language)) || language : language
+          const id = (regex.test(language) ? aliases.find(e => !regex.test(language)) || language : language).replace(/\+/g, "c");
           const li = document.createElement("li");
           const a = document.createElement("a");
           a.className = 'dropdown-item';
