@@ -146,7 +146,12 @@ OnlineIDE@0.1.2-BETA
       ws = null;
     }
   }
-  if (localStorage.getItem("code")) {
+  const search = new URLSearchParams(location.search);
+  if (search.has("code")) {
+    const code = atob(search.get("code"));
+    editor.setValue(code);
+    while (editor.getValue() !== code) editor.setValue(code);
+  } else if (localStorage.getItem("code")) {
     const code = localStorage.getItem("code");
     editor.setValue(code);
     while (editor.getValue() !== code) editor.setValue(code);

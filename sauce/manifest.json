@@ -1,0 +1,34 @@
+{
+  "name": "OnlineIDE Code Editor",
+  "short_name": "OnlineIDE",
+  "theme_color": "#1d529d",
+  "background_color": "#0b0b0b",
+  "display": "standalone",
+  "orientation": "landscape",
+  "scope": "/",
+  "start_url": "/",
+  "description": "Minimal lightweight IDE in the cloud.",
+  "display_override": [],
+  "protocol_handlers": [{"protocol":"ide","url":"/?code=%s"}],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "300x300"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/favicon.png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open",
+      "url": "/"
+    }
+  ],
+  "lang": "en-US",
+  "categories": ["coding", "programming", "ide", "cloud", "service"],
+  "id": "in.dreamnity.onlineide"
+}
