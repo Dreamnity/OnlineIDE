@@ -17,9 +17,24 @@ services:
     image: oven/bun
     user: '1000'
     volumes:
-    - /home/ubuntu/OnlineIDE/:/home/container/
+      - /home/ubuntu/OnlineIDE/:/home/container/
     working_dir: /home/container
     command: bun .
     ports:
       - "50004:8080"
+  api:
+    image: piston
+    container_name: piston_api
+    restart: always
+    privileged: true
+    ports:
+      - 2000:2000
+    volumes:
+      - ./data/piston/packages:/piston/packages
+    tmpfs:
+      - /tmp:exec
+    environment:
+      PISTON_RUN_TIMEOUT: -1
+      PISTON_COMPILE_MEMORY_LIMIT: 50000000
+      PISTON_RUN_MEMORY_LIMIT: 50000000
 version: '3'

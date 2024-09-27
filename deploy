@@ -1,0 +1,5 @@
+#!/bin/bash
+cd piston/
+docker build api -t piston
+cd -
+docker compose up -d
