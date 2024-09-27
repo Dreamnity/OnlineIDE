@@ -49,6 +49,7 @@ body, html {
   /* add a transition effect to the panel */
   border: #0d0d0d 2px solid;
   border-right: none;
+  z-index: 500;
 }
 
 .overlay-panel:hover {
