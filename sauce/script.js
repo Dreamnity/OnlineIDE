@@ -49,7 +49,7 @@ OnlineIDE@0.1.2-BETA
     .catch(() => { });
   editor.session.on("change", () => {
     clearTimeout(window?.saveInterval);
-    window.saveInterval = setTimeout(detect, auto ? 2000 : 10000);
+    window.saveInterval = setTimeout(detect, auto ? 500 : 5000);
   });
   function detect() {
     const code = editor.getValue();
