@@ -56,6 +56,14 @@ body, html {
   /* show the panel when hovered */
 }
 
+.overlay-panel:focus-within {
+  right: 0;
+}
+
+.dropdown-menu *:focus-within {
+  outline: none;
+}
+
 #terminal {
   height: 96%;
 }
