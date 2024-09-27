@@ -8,7 +8,7 @@ const sauce = join(__dirname, "sauce");
 const errorPage = await Bun.file(join(sauce, "404.html")).text();
 const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
-const runtimes = await fetch(server+"/runtimes").then(e=>e.json());
+const runtimes = await fetch(server + "/runtimes").then(e => e.json());
 const dev = process.argv.includes("--dev");
 
 console.log("\u001bcIt works");
@@ -26,8 +26,8 @@ Bun.serve<ExecutionData>({
       if (!result?.[0]) return new Response("null", {
         status: 404
       });
-      for(const lang of result) {
-        if(runtimes.find((e: any)=>e.language===lang.languageId||e.aliases.includes(lang.languageId)))
+      for (const lang of result) {
+        if (runtimes.find((e: any) => e.language === lang.languageId || e.aliases.includes(lang.languageId)))
           return new Response(lang.languageId);
       }
       return new Response("null", {
@@ -47,14 +47,14 @@ Bun.serve<ExecutionData>({
       });
     }
     if (url.pathname.startsWith("/api/list")) {
-      return fetch(server+"/runtimes");
+      return fetch(server + "/runtimes");
     }
     if (url.pathname.startsWith("/api/changelog")) {
       return new Response(await fetch("https://api.github.com/repos/Dreamnity/OnlineIDE/commits")
-        .then(e=>e.json())
-        .then((e: {commit:{message: string}}[])=>e
-          .map(e=>`- ${e?.commit?.message}`)
-          .filter((v, i)=>i<10)
+        .then(e => e.json())
+        .then((e: { commit: { message: string } }[]) => e
+          .map(e => `- ${e?.commit?.message}`)
+          .filter((v, i) => i < 10)
           .join("\n"))
       );
     }
@@ -83,7 +83,7 @@ Bun.serve<ExecutionData>({
       if (ws.data.code === undefined) {
         ws.data.code = message;
 
-        const back = ws.data.conn = new WebSocket(server +"/connect");
+        const back = ws.data.conn = new WebSocket(server + "/connect");
         back.onopen = () => {
           ws.send("!!starting");
           back.send(JSON.stringify({
@@ -108,7 +108,7 @@ Bun.serve<ExecutionData>({
               break;
             case 'exit':
               ws.send("\x1b[34m[exit: " + (data.signal || data.code) + "]\x1b[0m");
-              if(data.code) ws.send("!!exit "+(data.code||0));
+              if (data.code) ws.send("!!exit " + (data.code || 0));
               ws.close();
               back.close();
               break;
@@ -141,7 +141,7 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: dev?config.devPort:config.port
+  port: dev ? config.devPort : config.port
 });
 
 function makeErrorPage(message: string, code: number = 500) {
