@@ -50,7 +50,12 @@ Bun.serve<ExecutionData>({
       return fetch(server+"/runtimes");
     }
     if (url.pathname.startsWith("/api/changelog")) {
-      return new Response(await Bun.$`git log --oneline -4`.text());
+      return new Response(await fetch("https://api.github.com/repos/Dreamnity/OnlineIDE/commits")
+        .then(e=>e.json())
+        .then((e: {commit:{message: string}}[])=>e
+          .map(e=>`- ${e?.commit?.message}`)
+          .join("\n"))
+      );
     }
     let path = join(sauce, url.pathname);
     if (!dev) {
