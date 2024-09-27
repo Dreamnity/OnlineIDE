@@ -49,6 +49,9 @@ Bun.serve<ExecutionData>({
     if (url.pathname.startsWith("/api/list")) {
       return fetch(server+"/runtimes");
     }
+    if (url.pathname.startsWith("/api/changelog")) {
+      return new Response(await Bun.$`git log --oneline -4`.text());
+    }
     let path = join(sauce, url.pathname);
     if (!dev) {
       if (path.endsWith("/") && await Bun.file(join(sauce, "min", url.pathname, "index.html")).exists())

@@ -43,6 +43,10 @@ OnlineIDE@0.1.2-BETA
   term.open(document.getElementById('terminal'));
   fit.fit();
   term.write(motd);
+  fetch("/api/changelog")
+    .then(e => e.text())
+    .then(e => term.write("\n\n  Live changelog\n\x1b[34m" + e + "\x1b[0m"))
+    .catch(() => { });
   editor.session.on("change", () => {
     clearTimeout(window?.saveInterval);
     window.saveInterval = setTimeout(detect, auto ? 2000 : 10000);
@@ -138,7 +142,7 @@ OnlineIDE@0.1.2-BETA
       }
       term.write(dat);
     }
-    ws.onerror = () => term.write("\x1b[31m[client websocket error]\x1b[0m");
+    ws.onerror = () => term.write("\n\x1b[31m[client websocket error]\x1b[0m");
     ws.onclose = () => {
       runBtn.innerText = "Run";
       runBtn.classList.remove("btn-success", "btn-warning", "btn-info");
