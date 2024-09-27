@@ -12,7 +12,7 @@ Made for Canandaigua Academy\n\nMore to come:
 - More languages support
 - Dependencies/Libraries manager
 
-OnlineIDE@0.1.2-BETA
+OnlineIDE v0.2.0
  2024 @ Dreamnity inc.`
   const langMap = {
     "js": "javascript",
