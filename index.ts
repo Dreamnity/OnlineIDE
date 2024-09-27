@@ -54,6 +54,7 @@ Bun.serve<ExecutionData>({
         .then(e=>e.json())
         .then((e: {commit:{message: string}}[])=>e
           .map(e=>`- ${e?.commit?.message}`)
+          .filter((v, i)=>i<10)
           .join("\n"))
       );
     }
