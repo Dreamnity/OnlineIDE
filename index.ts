@@ -10,6 +10,12 @@ const server = "http://2.dreamnity.in:2000/api/v2";
 const classifier = new ModelOperations();
 const runtimes = await fetch(server + "/runtimes").then(e => e.json());
 const dev = process.argv.includes("--dev");
+const changelog = await fetch("https://api.github.com/repos/Dreamnity/OnlineIDE/commits")
+  .then(e => e.json())
+  .then((e: { commit: { message: string } }[]) => e
+    .map(e => `- ${e?.commit?.message}`)
+    .filter((v, i) => i < 10)
+    .join("\n"));
 
 console.log("\u001bcIt works");
 Bun.serve<ExecutionData>({
@@ -50,13 +56,7 @@ Bun.serve<ExecutionData>({
       return fetch(server + "/runtimes");
     }
     if (url.pathname.startsWith("/api/changelog")) {
-      return new Response(await fetch("https://api.github.com/repos/Dreamnity/OnlineIDE/commits")
-        .then(e => e.json())
-        .then((e: { commit: { message: string } }[]) => e
-          .map(e => `- ${e?.commit?.message}`)
-          .filter((v, i) => i < 10)
-          .join("\n"))
-      );
+      return new Response(changelog);
     }
     let path = join(sauce, url.pathname);
     if (!dev) {
