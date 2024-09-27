@@ -113,6 +113,7 @@ Bun.serve<ExecutionData>({
               return;
           }
         }
+        return;
       }
       if (ws?.data?.conn?.readyState !== 1) return;
       ws.data.conn.send(JSON.stringify({
