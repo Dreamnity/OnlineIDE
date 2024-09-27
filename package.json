@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "bun --hot . --dev",
-    "min": "bun minify.ts"
+    "min": "bun minify.ts",
+    "restart": "docker compose restart"
   }
 }
