@@ -59,7 +59,7 @@ OnlineIDE@0.1.2-BETA
       document.getElementById("lang-auto").innerText = "Auto (" + res + ")";
       if (auto) {
         document.getElementById("lang").innerText = "Auto (" + res + ")";
-        editor.session.setMode("ace/mode/" + (langMap[name] || name));
+        editor.session.setMode("ace/mode/" + (langMap[res] || res));
         lang = res;
       }
     })
