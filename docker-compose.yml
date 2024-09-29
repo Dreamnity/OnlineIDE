@@ -1,10 +1,7 @@
 services:
   onlineide:
     container_name: server
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
+    restart: always
     healthcheck:
       interval: 1m30s
       retries: 3
@@ -22,19 +19,20 @@ services:
     command: bun .
     ports:
       - "50004:8080"
+    depends_on:
+      - api
+    stop_grace_period: 1s
   api:
     image: piston
     container_name: piston_api
     restart: always
     privileged: true
-    ports:
-      - 2000:2000
     volumes:
       - ./data/piston/packages:/piston/packages
     tmpfs:
       - /tmp:exec
     environment:
-      PISTON_RUN_TIMEOUT: -1
-      PISTON_COMPILE_MEMORY_LIMIT: 50000000
-      PISTON_RUN_MEMORY_LIMIT: 50000000
-version: '3'
+      PISTON_RUN_TIMEOUT: 600000
+      PISTON_COMPILE_MEMORY_LIMIT: 400000000
+      PISTON_RUN_MEMORY_LIMIT: 400000000
+      PISTON_BIND_ADDRESS: 0.0.0.0:2000

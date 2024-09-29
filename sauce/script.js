@@ -1,5 +1,14 @@
 
-function main() {
+async function main() {
+  const { configureSingle, fs } = ZenFS;
+  const { WebStorage } = ZenFS_DOM;
+
+  await configureSingle({ backend: WebStorage });
+
+  var openedFile = localStorage.getItem('opened') || "//main.code";
+  if (!fs.existsSync('/main.code')) {
+    fs.writeFileSync('/main.code', '# Put your code here, or create a new file');
+  }
   var auto = true;
   var autoLang = '';
   var lang = 'js';
@@ -52,8 +61,12 @@ OnlineIDE v0.2.0
       term.write("\n\n\x1b[31mCannot request to OnlineIDE server(Are you offline?)");
     });
   editor.session.on("change", () => {
+    clearTimeout(window?.detectInterval);
+    window.detectInterval = setTimeout(detect, auto ? 500 : 5000);
     clearTimeout(window?.saveInterval);
-    window.saveInterval = setTimeout(detect, auto ? 500 : 5000);
+    window.saveInterval = setTimeout(() => {
+      fs.writeFileSync(openedFile, editor.getValue());
+    }, 200);
   });
   function detect() {
     const code = editor.getValue();
@@ -62,7 +75,7 @@ OnlineIDE v0.2.0
       body: code
     }).then(async r => {
       const res = await r.text();
-      if (res === 'null' || r.status === 404) return;
+      if (res === 'null' || r.status !== 200) return;
       autoLang = res;
       document.getElementById("lang-auto").innerText = "Auto (" + res + ")";
       if (auto) {
@@ -71,7 +84,6 @@ OnlineIDE v0.2.0
         lang = res;
       }
     })
-    localStorage.setItem("code", code);
   }
   function setLang(name) {
     auto = false;
@@ -105,7 +117,7 @@ OnlineIDE v0.2.0
       runBtn.classList.add("btn-warning");
       runBtn.innerText = "30%";
       term.write("\u001bc");
-      ws.send(editor.getValue());
+      ws.send(JSON.stringify(getTree()));
       stopBtn.disabled = false;
     }
     ws.onmessage = msg => {
@@ -164,12 +176,112 @@ OnlineIDE v0.2.0
   const search = new URLSearchParams(location.search);
   if (search.has("code")) {
     const code = atob(search.get("code"));
-    editor.setValue(code);
-    while (editor.getValue() !== code) editor.setValue(code);
-  } else if (localStorage.getItem("code")) {
-    const code = localStorage.getItem("code");
-    editor.setValue(code);
-    while (editor.getValue() !== code) editor.setValue(code);
+    editor.setValue(code, 1);
   }
+
+  function fileAction(path) {
+    try { event.stopPropagation(); }catch{}
+    const code = fs.readFileSync(path).toString();
+    openedFile = path;
+    editor.setValue(code, 1);
+    // ensure it doesn't bug out by loading half the file
+    //while (editor.getValue() !== code) editor.setValue(code);
+  }
+  window.fileOpen = fileAction;
+
+  function renderFileTree(container, path) {
+    const ul = document.createElement('ul');
+    ul.classList.add('file-tree');
+
+    const items = fs.readdirSync(path);
+
+    items.forEach(item => {
+      const fullPath = `${path}/${item}`;
+      const li = document.createElement('li');
+      const stats = fs.statSync(fullPath);
+
+      if (stats.isDirectory()) {
+        li.classList.add('folder');
+        li.textContent = item;
+        li.addEventListener('click', function (event) {
+          event.stopPropagation();
+          this.classList.toggle('open');
+        });
+
+        const actions = document.createElement('span');
+        actions.classList.add('actions');
+        actions.innerHTML = `<button class="btn-icon" onclick="fileDelete(event, '${fullPath}')" title="Delete ${fullPath}">-</button>`;
+        li.appendChild(actions);
+
+        const createBtn = document.createElement('span');
+        createBtn.classList.add('create-btn');
+        createBtn.innerHTML = `<button class="btn-icon" onclick="fileCreate(event, '${fullPath}')" title="Create file on ${fullPath}">+</button>`;
+        li.appendChild(createBtn);
+
+        const folderContent = document.createElement('ul');
+        folderContent.classList.add('file-tree', 'folder-content');
+        renderFileTree(folderContent, fullPath);
+        li.appendChild(folderContent);
+      } else {
+        li.classList.add('file');
+        li.textContent = item;
+        li.setAttribute('onclick', `fileOpen('${fullPath}')`);
+        li.title = fullPath;
+
+        const actions = document.createElement('span');
+        actions.classList.add('actions');
+        if(fullPath!=="//main.code") actions.innerHTML = `<button class="btn-icon" onclick="fileDelete(event, '${fullPath}')" title="Delete ${fullPath}">-</button>`;
+        li.appendChild(actions);
+      }
+      ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+  }
+
+  function deleteItem(event, itemName) {
+    event.stopPropagation();
+    if (confirm("Are you sure you want to delete " + itemName + "? This action is irreversible!"))
+      fs.rmSync(itemName, {
+        recursive: true
+      });
+    else return;
+    fileAction("//main.code");
+  }
+  window.fileDelete = deleteItem;
+
+  function createItem(event, folderName) {
+    event.stopPropagation();
+    const newFileName = prompt('Enter the name of the new file or folder:');
+    if (newFileName) {
+      const fullPath = `${folderName}/${newFileName}`;
+      if (newFileName.includes('.')) {
+        fs.writeFileSync(fullPath, '');
+      } else {
+        fs.mkdirSync(fullPath);
+      }
+      refreshFileTree();
+    }
+  }
+  window.fileCreate = createItem;
+
+  function getTree(path = "/", res = []) {
+    fs.readdirSync(path, { withFileTypes: true }).forEach(e => {
+      let fullPath = path + "/" + e.path;
+      if (fullPath.startsWith("//")) fullPath = fullPath.substring(2);
+      if (e.isDirectory()) getTree(fullPath, res);
+      else res.push({ name: fullPath, content: fs.readFileSync(fullPath).toString() });
+    });
+    return res;
+  }
+  //window.tree = getTree; // development only
+
+  function refreshFileTree() {
+    const fileTreeContainer = document.getElementById('file-tree');
+    fileTreeContainer.innerHTML = '';
+    renderFileTree(fileTreeContainer, '/');
+  }
+  refreshFileTree();
+  fileAction(openedFile);
 }
 main();

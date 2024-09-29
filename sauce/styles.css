@@ -21,6 +21,7 @@
   height: 100%;
   flex: 2;
   margin: 0;
+  margin-right: 1%;
 }
 
 .layout>* {
@@ -37,8 +38,8 @@ body, html {
 /* CSS */
 .overlay-panel {
   position: absolute;
-  top: 2%;
-  height: 96%;
+  top: 0;
+  height: 100%;
   width: 30%;
   right: -29%;
   padding: 0;
@@ -50,6 +51,8 @@ body, html {
   border: #0d0d0d 2px solid;
   border-right: none;
   z-index: 500;
+  display: flex;
+  flex-direction: column;
 }
 
 .overlay-panel:hover {
@@ -71,4 +74,76 @@ body, html {
 
 #run {
   transition: background-color 0.5s;
+}
+
+/* FILE TREE */
+
+.file-tree {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.file-tree ul {
+  padding-left: 10px;
+}
+
+.file-tree li {
+  margin: 5px 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.file-tree li:hover {
+  background-color: #3e3e3e;
+}
+
+.file-tree .folder::before {
+  content: "\1F4C1";
+  margin-right: 5px;
+}
+
+.file-tree .file::before {
+  content: "\1F4C4";
+  margin-right: 5px;
+}
+
+.file-tree .folder-content {
+  display: none;
+}
+
+.file-tree .folder.open>.folder-content {
+  display: block;
+}
+
+.file-tree .actions {
+  display: none;
+  position: absolute;
+  right: 10px;
+}
+
+.file-tree li:hover>.actions {
+  display: inline-block;
+}
+
+.file-tree .create-btn {
+  display: none;
+  position: absolute;
+  right: 30px;
+}
+
+.file-tree .folder:hover>.create-btn {
+  display: inline-block;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: #d4d4d4;
+  font-size: 14px;
+  padding: 0;
+  margin: 0 5px;
+}
+
+.btn-icon:hover {
+  color: #ff0000;
 }

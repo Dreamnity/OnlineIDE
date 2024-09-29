@@ -6,18 +6,22 @@ const acePath = join(__dirname, "ace-builds", "src-min");
 const modulePath = join(__dirname, "node_modules");
 const sauce = join(__dirname, "sauce");
 const errorPage = await Bun.file(join(sauce, "404.html")).text();
-const server = "http://2.dreamnity.in:2000/api/v2";
+const server = "http://piston_api:2000/api/v2";
 const classifier = new ModelOperations();
-const runtimes = await fetch(server + "/runtimes").then(e => e.json());
+const runtimes = await fetch(server + "/runtimes").then(e => e.json()).catch(e => {
+  console.error("CANNOT FETCH RUNTIMES", e);
+  return [];
+});
 const dev = process.argv.includes("--dev");
 const changelog = await fetch("https://api.github.com/repos/Dreamnity/OnlineIDE/commits")
   .then(e => e.json())
   .then((e: { commit: { message: string } }[]) => e
     .map(e => `- ${e?.commit?.message}`)
     .filter((v, i) => i < 10)
-    .join("\n"));
+    .join("\n"))
+  .catch(()=>"[INTERNAL] CHANGELOG UNAVAILABLE");
 
-console.log("\u001bcIt works");
+console.log("Started");
 Bun.serve<ExecutionData>({
   async fetch(req) {
     const url = new URL(req.url);
@@ -81,7 +85,16 @@ Bun.serve<ExecutionData>({
     message(ws, msg) {
       const message = msg.toString();
       if (ws.data.code === undefined) {
-        ws.data.code = message;
+        let files = {};
+        try {
+          files = JSON.parse(message);
+        } catch {
+          ws.send("\x1b[31m[error: provided code is not valid]\x1b[0m");
+          ws.send("!!exit (internal error)");
+          ws.close();
+          return;
+        }
+        ws.data.code = files;
 
         const back = ws.data.conn = new WebSocket(server + "/connect");
         back.onopen = () => {
@@ -90,9 +103,7 @@ Bun.serve<ExecutionData>({
             type: "init",
             language: ws.data.lang,
             version: "*",
-            files: [{
-              content: ws.data.code
-            }],
+            files: ws.data.code,
             run_timeout: 600000,
             run_memory_limit: 5e+7
           }));
@@ -141,7 +152,8 @@ Bun.serve<ExecutionData>({
       }
     }
   },
-  port: dev ? config.devPort : config.port
+  port: dev ? config.devPort : config.port,
+  development: dev
 });
 
 function makeErrorPage(message: string, code: number = 500) {
@@ -156,6 +168,6 @@ function makeErrorPage(message: string, code: number = 500) {
 
 interface ExecutionData {
   lang: string,
-  code: string,
+  code: Object,
   conn: WebSocket
 };

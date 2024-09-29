@@ -15,7 +15,11 @@
 <body>
 <div class=layout>
 <div id=splash style=backdrop-filter:blur(2px);width:100vw;height:100vh;position:absolute;margin:0;padding:0;left:0;top:0;z-index:1000></div>
-<div class=sidebar><img src=/favicon.png width=60 height=60></div>
+<div class=sidebar>
+<img src=/favicon.png width=60 height=60>
+<button class=btn-icon onclick='fileCreate(event,"")' title="Create new file">+</button>
+<ul id=file-tree class=file-tree></ul>
+</div>
 <div id=editor-wrapper>
 <pre id=editor></pre>
 </div>
@@ -39,6 +43,8 @@
 </div>
 <script src=/ace/ace.js></script>
 <script src=/ace/ext-language_tools.js></script>
+<script src=/module/@zenfs/core/dist/browser.min.js></script>
+<script src=/module/@zenfs/dom/dist/browser.min.js></script>
 <script>"serviceWorker"in navigator&&window.addEventListener("load",(()=>navigator.serviceWorker.register("sw.js")))</script>
 <script src=script.js></script>
 <script src=/module/bootstrap/dist/js/bootstrap.bundle.min.js></script>
